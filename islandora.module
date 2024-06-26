@@ -545,12 +545,13 @@ function islandora_entity_view(array &$build, EntityInterface $entity, EntityVie
   $route_match_item = \Drupal::routeMatch()->getParameters()->get($entity->getEntityTypeId());
   // Ensure the entity matches the route.
   if ($entity === $route_match_item) {
-    if ($display->getComponent('field_gemini_uri')) {
+    $flysystem_config = Settings::get('flysystem');
+    $fedora_root = $flysystem_config['fedora']['config']['root'];
+    $fedora_root = rtrim($fedora_root, '/');
+    if ($display->getComponent('field_gemini_uri') && $fedora_root) {
       $mapper = \Drupal::service('islandora.entity_mapper');
-      $flysystem_config = Settings::get('flysystem');
-      $fedora_root = $flysystem_config['fedora']['config']['root'];
       if ($entity->getEntityTypeId() == 'media') {
-        // Check existence of source file.
+        // Check if the source file is in Fedora or not.
         $media_source_service = \Drupal::service('islandora.media_source_service');
         $source_file = $media_source_service->getSourceFile($entity);
         if (!$source_file) {
@@ -564,10 +565,6 @@ function islandora_entity_view(array &$build, EntityInterface $entity, EntityVie
           );
           return;
         }
-        if (!$fedora_root) {
-          return;
-        }
-        $fedora_root = rtrim($fedora_root, '/');
         $uri = $source_file->getFileUri();
         $scheme = \Drupal::service('stream_wrapper_manager')->getScheme($uri);
         $flysystem_config = Settings::get('flysystem');
@@ -586,9 +583,6 @@ function islandora_entity_view(array &$build, EntityInterface $entity, EntityVie
       }
       else {
         // All non-media entities do the UUID -> pair tree thang.
-        if (!$fedora_root) {
-          return;
-        }
         $path = $mapper->getFedoraPath($entity->uuid());
         $path = trim($path, '/');
         $fedora_uri = "$fedora_root/$path";
