@@ -546,8 +546,11 @@ function islandora_entity_view(array &$build, EntityInterface $entity, EntityVie
   // Ensure the entity matches the route.
   if ($entity === $route_match_item) {
     $flysystem_config = Settings::get('flysystem');
-    $fedora_root = $flysystem_config['fedora']['config']['root'];
-    $fedora_root = rtrim($fedora_root, '/');
+    $fedora_root = NULL;
+    if (isset($flysystem_config['fedora']['config']['root'])) {
+      $fedora_root = $flysystem_config['fedora']['config']['root'];
+      $fedora_root = rtrim($fedora_root, '/');
+    }
     if ($display->getComponent('field_gemini_uri') && $fedora_root) {
       $mapper = \Drupal::service('islandora.entity_mapper');
       if ($entity->getEntityTypeId() == 'media') {
