@@ -226,3 +226,13 @@ function islandora_update_8008() {
     Configuration > Islandora > Core Settings.');
   }
 }
+
+/**
+ * Add "Delete node and media" action.
+ */
+function islandora_update_9001(&$sandbox) {
+  $config_id = 'system.action.delete_node_and_media';
+  $config_path = \Drupal::service('extension.list.module')->getPath('islandora') . '/config/install/' . $config_id .'.yml';
+  $data = \Symfony\Component\Yaml\Yaml::parseFile($config_path);
+  \Drupal::configFactory()->getEditable($config_id)->setData($data)->save(TRUE);
+}
